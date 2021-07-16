@@ -20,8 +20,7 @@ module.exports = class SpTrans {
             const query = this.queryParamsBuilder(params)
             endpoint += '?'+query
         }
-                
-        console.log(endpoint)
+        
         return await api.get(endpoint, self.options);
     }
 
