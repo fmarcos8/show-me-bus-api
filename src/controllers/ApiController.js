@@ -2,30 +2,29 @@ const SpTrans = require("../entity/SpTrans")
 const busAPI = require('bus-promise')
 const Endpoits = require('../constants/Endpoits')
 
-function initSpTrans(endpoint, params) {
+function initSpTrans() {
     return new SpTrans(process.env.SPTRANS_KEY)
 }
 
-exports.get_lines = async function (req, res) {
+exports.get_lines = function (req, res) {
     const { search_term } = req.query;
 
     initSpTrans()
         .getLines({
             termosBusca: search_term
         })
-        .then(({ data }) => res.json(data))
+        .then(data => res.json(data))
 }
 
 exports.get_lines_way = async function (req, res) {
     const { search_term, direction } = req.query;
-    busAPI.find({
-        auth: await doAuth(),
-        type: 'linesDirection',
-        terms: search_term,
-        direction: direction
-    })
+    
+    initSpTrans()
+        .getLinesWay({
+            termosBusca: search_term,
+            sentido: direction
+        })
         .then(data => res.json(data))
-        .catch(err => console.log(err))
 }
 
 exports.get_shapes = async function (req, res) {

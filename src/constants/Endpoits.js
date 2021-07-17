@@ -1,3 +1,10 @@
 module.exports = {
-    GET_LINE: "/Linha/Buscar"
+    GET_LINE: {
+        path: "/Linha/Buscar",
+        type: 'lines'
+    },
+    GET_LINE_DIRECTION: {
+        path: "/Linha/BuscarLinhaSentido",
+        type: 'linesDirection'
+    }
 }

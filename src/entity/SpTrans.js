@@ -1,4 +1,6 @@
 const api = require('../../api')
+const helpers = require('../helpers')
+const Endpoits = require('../constants/Endpoits')
 
 module.exports = class SpTrans {
     constructor(token) {
@@ -11,17 +13,19 @@ module.exports = class SpTrans {
         return query.toString();
     }
 
-    async doQueryApi(endpoint, params = null) {
+    async doQueryApi({ path, type }, params = null) {
         var self = this
         if (!self.cookie) {
             await this.doAuth();
         }
         if (params) {
             const query = this.queryParamsBuilder(params)
-            endpoint += '?'+query
+            path += '?'+query
         }
         
-        return await api.get(endpoint, self.options);
+        return await api.get(path, self.options).then((res) => {
+            return this.handleResponse(res, type)
+        });
     }
 
     async doAuth() {
@@ -39,11 +43,11 @@ module.exports = class SpTrans {
     }
 
     async getLines(params) {
-        return await this.doQueryApi('/Linha/Buscar', params);
+        return await this.doQueryApi(Endpoits.GET_LINE, params);
     }
 
     async getLinesWay(params) {
-        return await this.doQueryApi('/Linha/BuscarLinhaSentido', params);
+        return await this.doQueryApi(Endpoits.GET_LINE_DIRECTION, params);
     }
 
     async getStops(params) {
@@ -53,4 +57,14 @@ module.exports = class SpTrans {
     async getStopsByLine(params) {
         return await this.doQueryApi('/parada/BuscarParadasPorLinha', params)
     }
+
+    handleResponse(response, type) {
+        const { data } = response
+        const responseTypes = {
+            lines: helpers.linesResponse,
+            linesDirection: helpers.linesDirectionResponse
+        }
+        
+        return responseTypes[type](data)
+    }    
 }
